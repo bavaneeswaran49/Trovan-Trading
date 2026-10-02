@@ -19,7 +19,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['server/**/*.js', 'tests/**/*.js', 'scripts/**/*.mjs', 'vite.config.js'],
+    files: ['api/**/*.js', 'server/**/*.js', 'tests/**/*.js', 'scripts/**/*.mjs', 'vite.config.js'],
     extends: [js.configs.recommended],
     languageOptions: { globals: globals.node },
     rules: { 'no-unused-vars': ['error', { argsIgnorePattern: '^_' }] },

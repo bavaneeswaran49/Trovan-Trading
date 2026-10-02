@@ -2,8 +2,8 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
 if (existsSync('.env')) process.loadEnvFile('.env')
-const secrets = ['INDIAN_API_KEY', 'SESSION_SECRET', 'JWT_SECRET', 'GOOGLE_CLIENT_SECRET'].map(name => process.env[name]).filter(Boolean)
-const forbidden = ['X-Api-Key', 'SESSION_SECRET', 'JWT_SECRET', 'GOOGLE_CLIENT_SECRET', 'test-server-key', ...secrets]
+const secrets = ['INDIAN_API_KEY', 'SESSION_SECRET', 'JWT_SECRET', 'GOOGLE_CLIENT_SECRET', 'UPSTASH_REDIS_REST_TOKEN', 'KV_REST_API_TOKEN'].map(name => process.env[name]).filter(Boolean)
+const forbidden = ['INDIAN_API_KEY', 'X-Api-Key', 'SESSION_SECRET', 'JWT_SECRET', 'GOOGLE_CLIENT_SECRET', 'UPSTASH_REDIS_REST_TOKEN', 'KV_REST_API_TOKEN', 'test-server-key', ...secrets]
 function check(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const file = path.join(directory, entry.name)

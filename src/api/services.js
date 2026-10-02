@@ -1,4 +1,4 @@
-import { marketPath } from './client'
+import { marketPath } from './client.js'
 export const stocks = {
   search: query => marketPath('search', { query }),
   details: name => marketPath('stock', { name }),

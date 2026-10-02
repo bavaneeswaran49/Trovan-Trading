@@ -1,6 +1,6 @@
 # Trovan
 
-A React 19/Vite Indian market MVP with an Express 5 server, Google Identity Services sign-in, persistent SQLite user profiles and revocable sessions, and a server-only Indian API proxy. The existing React project and npm lockfile are retained.
+A React 19/Vite Indian market MVP with an Express 5 server, Google Identity Services sign-in, revocable sessions, and a server-only Indian API proxy. Local and standalone deployments use SQLite; Vercel functions use shared Redis session storage. The existing React project and npm lockfile are retained.
 
 ## Interface and performance
 
@@ -97,13 +97,18 @@ npm.cmd run lint
 npm.cmd test
 npm.cmd run build
 npm.cmd run check:bundle
+npm.cmd run check:secrets
 ```
 
-Tests use isolated synthetic fixtures **only within tests**. They check login/session/logout, nonce replay and token rejection, origin checks, protected routes, search and stock responses, request contracts, API key isolation, deduplication, caching, invalid JSON, timeouts, network failures, and upstream 401/403/404/429/5xx handling. They do not claim a real Google account or live Indian API connection was verified.
+Tests use isolated synthetic fixtures **only within tests**. They check login/session/logout, nonce replay and token rejection, origin checks, protected routes, search and stock responses, request contracts, API key isolation, deduplication, caching, invalid JSON, timeouts, network failures, and upstream 401/403/404/429/5xx handling. Vercel tests also exercise rewritten routes, request helpers, sessions shared across independent function instances, and upstream key-echo rejection. They do not claim a real Google account or live Indian API connection was verified.
 
 After configuring credentials, manually verify: Google login, profile name/email/image, browser refresh/session persistence, logout and protected URLs; stock search/details/history periods; funds search/details, market tabs, news, IPO, commodities; invalid-key and rate-limit messages. Browser UI and responsive visual checks require an available browser connection.
 
 ## Production
+
+**Vercel:** Follow [the deployment guide](docs/vercel-deployment.md). `api/index.js` wraps the existing Express application; `vercel.json` routes `/api/*` to that function while Vercel serves Vite's `dist` assets. React calls relative `/api/indianapi/*` endpoints. Configure `INDIAN_API_KEY`, a stable `SESSION_SECRET`, shared Redis credentials, the production `APP_ORIGIN`, and `GOOGLE_CLIENT_ID` for Google sign-in. No IndianAPI key belongs in a `VITE_*` variable. SQLite remains the local default; it is not used for Vercel sessions.
+
+**Standalone Node/Docker:**
 
 ```powershell
 npm.cmd run build
@@ -115,7 +120,7 @@ Express serves both `dist` and `/api` on port 3001. Put it behind an HTTPS rever
 
 A Dockerfile is included: build with `docker build -t trovan .`, run with `--env-file .env -e NODE_ENV=production`, a configured HTTPS origin, and a persistent `/app/data` volume owned by the container's Node user. Back up that volume. Do not expose the Node port directly on the public Internet. This SQLite/in-memory-cache deployment is intended for one application instance; multiple instances require a shared session store and coordinated cache/rate limiter.
 
-This server uses Node/SQLite and is **not a Cloudflare Workers-compatible Sites deployment**. Keep this architecture and deploy to a Node host; a static-only upload would omit authentication and the secure data proxy. No external deployment was performed.
+The server requires Node and is **not a Cloudflare Workers-compatible Sites deployment**. A static-only upload would omit authentication and the secure data proxy; use the Vercel function configuration or a standalone Node host. No external deployment was performed.
 
 ## Main files changed
 

@@ -20,9 +20,9 @@ export async function api(path, options = {}) {
   try { body = await response.json() }
   catch { throw new RequestError('Unable to load this page. Please try again.', response.status, 'INVALID_RESPONSE') }
   if (!response.ok) {
-    if (response.status === 401 && path.startsWith('/api/market/') && typeof window !== 'undefined') window.dispatchEvent(new Event('session-expired'))
+    if (response.status === 401 && (path.startsWith('/api/indianapi/') || path.startsWith('/api/market/')) && typeof window !== 'undefined') window.dispatchEvent(new Event('session-expired'))
     throw new RequestError(body.error?.message || 'Unable to load market data. Please try again.', response.status, body.error?.code, body.error?.retryAfter)
   }
   return body
 }
-export function marketPath(endpoint, params = {}) { return `/api/market/${endpoint}?${new URLSearchParams(params)}` }
+export function marketPath(endpoint, params = {}) { return `/api/indianapi/${endpoint}?${new URLSearchParams(params)}` }

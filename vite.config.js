@@ -15,7 +15,9 @@ export default defineConfig(({ command, mode }) => ({
   // A development .env must never ship React's development runtime in a build.
   define: { 'process.env.NODE_ENV': JSON.stringify(command === 'build' ? 'production' : 'development') },
   plugins: [react(), { name: 'trusted-preview-origin', transformIndexHtml(html) {
-    const page = command === 'serve' ? html.replaceAll('__APP_ORIGIN__', new URL(loadEnv(mode, process.cwd(), 'APP_ORIGIN').APP_ORIGIN || 'http://localhost:5173').origin) : html
+    const origin = command === 'serve' ? loadEnv(mode, process.cwd(), 'APP_ORIGIN').APP_ORIGIN || 'http://localhost:5173'
+      : process.env.APP_ORIGIN || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+    const page = origin ? html.replaceAll('__APP_ORIGIN__', new URL(origin).origin) : html
     const fonts = superiorStyles()
     return fonts ? page.replace('</head>', `<style>${fonts}</style></head>`) : page
   } }],

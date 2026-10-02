@@ -18,6 +18,7 @@ data/
 provider-reference.html
 provider-openapi.json
 test-results/
+.vercel/
 
 # Editor directories and files
 .vscode/*

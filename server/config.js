@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url'
 
 export const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 export function getConfig(env = process.env) {
-  const production = env.NODE_ENV === 'production'
-  const origin = new URL(env.APP_ORIGIN || 'http://localhost:5173').origin
+  const production = env.NODE_ENV === 'production' || env.VERCEL === '1'
+  const origin = new URL(env.APP_ORIGIN || (env.VERCEL_URL ? `https://${env.VERCEL_URL}` : 'http://localhost:5173')).origin
   const secret = env.SESSION_SECRET || env.JWT_SECRET || (production ? '' : randomBytes(32).toString('hex'))
   if (secret.length < 32) throw new Error('SESSION_SECRET must contain at least 32 characters.')
   if (production && secret.startsWith('replace-with-')) throw new Error('Replace the example SESSION_SECRET before running in production.')
@@ -15,6 +15,8 @@ export function getConfig(env = process.env) {
     throw new Error('INDIAN_API_BASE_URL must be an official Indian API origin.')
   }
   return { production, origin, secret, baseUrl, apiKey: env.INDIAN_API_KEY || '', clientId: env.GOOGLE_CLIENT_ID || '',
+    redisUrl: env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL || '',
+    redisToken: env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN || '',
     databasePath: env.DATABASE_PATH || path.join(projectRoot, 'data', 'trovan.sqlite'), port: Number(env.PORT || 3001),
     trustProxy: Number(env.TRUST_PROXY || 0), timeout: 12000, sessionDays: 30 }
 }

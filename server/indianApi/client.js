@@ -10,7 +10,7 @@ export function createIndianApi(config, fetcher = fetch) {
     if (!contracts[endpoint]) throw new ApiError(404, 'ENDPOINT_NOT_FOUND', 'This data source is unavailable.')
     const parsed = contracts[endpoint].safeParse(params)
     if (!parsed.success) throw new ApiError(400, 'INVALID_PARAMETERS', 'Please check your search or selected options.')
-    if (!config.apiKey) throw new ApiError(503, 'API_NOT_CONFIGURED', 'Market data is not connected yet. Please contact the application administrator.')
+    if (!config.apiKey) throw new ApiError(503, 'API_NOT_CONFIGURED', 'Market data is not configured. Set INDIAN_API_KEY on the server.')
     const query = new URLSearchParams(Object.entries(parsed.data).sort(([a], [b]) => a.localeCompare(b)))
     const key = `${endpoint}?${query}`
     const cached = cache.get(key)
@@ -34,6 +34,8 @@ export function createIndianApi(config, fetcher = fetch) {
       try { data = await response.json() } catch { throw new ApiError(502, 'INVALID_RESPONSE', 'The market data service returned an unexpected response. Please try again.') }
       const valid = validateResponse(endpoint, data)
       if (!valid.success || (data && typeof data === 'object' && ('error' in data || 'detail' in data))) throw new ApiError(502, 'INVALID_RESPONSE', 'The market data service returned an unexpected response. Please try again.')
+      // Fail closed even if an upstream response unexpectedly echoes its key.
+      if (JSON.stringify(valid.data).includes(config.apiKey)) throw new ApiError(502, 'INVALID_RESPONSE', 'The market data service returned an unexpected response. Please try again.')
       const value = { data: valid.data, fetchedAt: new Date().toISOString(), source: 'Indian API' }
       if (cache.size >= 500) cache.delete(cache.keys().next().value)
       cache.set(key, { value, expires: Date.now() + (['news', 'mutual_funds', 'mutual_funds_details'].includes(endpoint) ? 300000 : 60000) })

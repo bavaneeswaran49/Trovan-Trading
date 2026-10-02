@@ -34,7 +34,7 @@ export function resourceOptions(path) {
     queryKey: [...marketKey, path],
     queryFn: ({ signal }) => api(path, { signal }),
     enabled: Boolean(path),
-    staleTime: /\/api\/market\/(news|mutual_funds)/.test(path || '') ? 5 * 60_000 : 60_000,
+    staleTime: /\/api\/(indianapi|market)\/(news|mutual_funds)/.test(path || '') ? 5 * 60_000 : 60_000,
   })
 }
 

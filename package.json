@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": { "node": "24.x" },
   "scripts": {
     "dev": "concurrently --kill-others -n api,web \"node --watch server/index.js\" \"vite\"",
     "dev:web": "vite",
@@ -10,6 +11,7 @@
     "start": "node server/index.js",
     "test": "npm run build && node --test tests/*.test.js",
     "check:bundle": "node scripts/check-bundle.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
